@@ -1,1 +1,1461 @@
+/*
+  ============================================================
+  (Ne)Plechy – Žesťový soubor | CSS Soubor se styly
+  ============================================================
+  Co je to CSS?
+  CSS (Cascading Style Sheets) = kaskádové styly.
+  Tento soubor určuje, JAK VĚCI VYPADAJÍ – barvy, fonty, 
+  rozložení, mezery, animace, responzivita...
+  
+  HTML říká "tady je nadpis", CSS říká "nadpis je zlatý, 
+  velký 48px a tučný".
+  
+  Struktura pravidla CSS:
+  .nazev-tridy {           <- selektor (co stylujeme)
+    vlastnost: hodnota;    <- deklarace
+    barva: červená;
+  }
+  
+  Tečka (.) před názvem = třída z HTML (class="...")
+  Mřížka (#) před názvem = id z HTML (id="...")
+  ============================================================
+*/
 
+
+/* ===========================================================
+   1. CSS PROMĚNNÉ (Custom Properties)
+   Barvy a hodnoty definované na jednom místě.
+   Chceš změnit barvu? Změň ji TADY a změní se všude.
+=========================================================== */
+:root {
+  /* Hlavní barvy – inspirováno logem Neplechy */
+  --tmava-modra: #0a1628;        /* Velmi tmavá námořní modrá – pozadí */
+  --stredni-modra: #0f2040;      /* Středně tmavá modrá – karty, sekce */
+  --svetla-modra: #1a3560;       /* Světlejší modrá – hover efekty */
+  --zlata: #c9a84c;              /* Zlatá / mosazná – hlavní akcent */
+  --zlata-svetla: #e8c96b;       /* Světlejší zlatá – hover stav */
+  --zlata-tmava: #a07c2e;        /* Tmavší zlatá – stíny, detaily */
+  --bila: #ffffff;               /* Čistá bílá */
+  --bila-pruhledna: rgba(255,255,255,0.85); /* Průhledná bílá */
+  --seda: #8a9ab5;               /* Šedá – sekundární text */
+  --seda-tmava: #4a5568;         /* Tmavší šedá */
+
+  /* Typografie – velikosti písma */
+  --font-maly: 0.875rem;         /* 14px */
+  --font-zakladni: 1rem;         /* 16px – základ */
+  --font-stredni: 1.125rem;      /* 18px */
+  --font-velky: 1.5rem;          /* 24px */
+  --font-nadpis: 2.5rem;         /* 40px */
+  --font-hrdina: 4.5rem;         /* 72px – hero nadpis */
+
+  /* Mezery (spacing) */
+  --mezera-s: 0.5rem;            /* 8px */
+  --mezera-m: 1rem;              /* 16px */
+  --mezera-l: 2rem;              /* 32px */
+  --mezera-xl: 4rem;             /* 64px */
+  --mezera-xxl: 6rem;            /* 96px */
+
+  /* Zaoblení rohů */
+  --zaobleni: 8px;
+  --zaobleni-velke: 16px;
+
+  /* Stíny */
+  --stin: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --stin-zlaty: 0 0 20px rgba(201, 168, 76, 0.3);
+
+  /* Přechody (transition) – pro plynulé animace */
+  --prechod: all 0.3s ease;
+}
+
+
+/* ===========================================================
+   2. RESET A ZÁKLADNÍ STYLY
+   Prohlížeče mají různé výchozí styly – toto je sjednocuje.
+=========================================================== */
+*, *::before, *::after {
+  /* box-sizing: border-box = padding a border jsou součástí šířky prvku */
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  /* Plynulé scrollování po kliknutí na odkaz v menu */
+  scroll-behavior: smooth;
+  /* Kompenzace výšky fixního menu */
+  scroll-padding-top: 80px;
+}
+
+body {
+  /* font-family = rodina písma. Píše se od nejpreferovanějšího po záložní */
+  font-family: 'Raleway', 'Georgia', sans-serif;
+  font-size: var(--font-zakladni);
+  font-weight: 400;
+  line-height: 1.7;               /* Řádkování */
+  color: var(--bila-pruhledna);   /* Výchozí barva textu */
+  background-color: var(--tmava-modra);
+  
+  /* Plynulý přechod při přepínání sekcí */
+  overflow-x: hidden;
+}
+
+/* Odstranění podtržení odkazů (ale zachování barvy) */
+a {
+  text-decoration: none;
+  color: inherit;
+  transition: var(--prechod);
+}
+
+/* Obrázky nikdy nevytekou ze svého rámečku */
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Seznamy bez odrážek */
+ul, ol {
+  list-style: none;
+}
+
+/* Tlačítka – odstranění výchozích stylů prohlížeče */
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+
+/* ===========================================================
+   3. POMOCNÉ TŘÍDY (Utility classes)
+   Malé třídy použitelné kdekoliv v HTML
+=========================================================== */
+
+/* Kontejner – omezí šířku obsahu na středu stránky */
+.kontejner {
+  width: 100%;
+  max-width: 1200px;     /* Maximální šířka obsahu */
+  margin: 0 auto;        /* Vycentrování: margin vlevo i vpravo = auto */
+  padding: 0 var(--mezera-l);
+}
+
+/* Nadpis každé sekce */
+.sekce-hlavicka {
+  text-align: center;
+  margin-bottom: var(--mezera-xl);
+}
+
+/* Malý ozdobný text nad nadpisem */
+.sekce-ozdobny-text {
+  display: block;
+  font-size: var(--font-maly);
+  font-weight: 700;
+  letter-spacing: 0.3em;  /* Prostrkání písmen */
+  text-transform: uppercase;
+  color: var(--zlata);
+  margin-bottom: var(--mezera-s);
+}
+
+/* Hlavní nadpis sekce */
+.sekce-nadpis {
+  font-family: 'Playfair Display', serif;
+  font-size: var(--font-nadpis);
+  color: var(--bila);
+  line-height: 1.2;
+}
+
+/* Zlatá linka pod nadpisem */
+.oddelovac {
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(90deg, var(--zlata), var(--zlata-svetla));
+  margin: var(--mezera-m) auto 0;
+  border-radius: 2px;
+}
+
+/* Základní styl sekce */
+.sekce {
+  padding: var(--mezera-xxl) 0;
+}
+
+
+/* ===========================================================
+   4. TLAČÍTKA
+=========================================================== */
+
+/* Obecný styl tlačítka */
+.tlacitko {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 4px;
+  font-family: 'Raleway', sans-serif;
+  font-weight: 700;
+  font-size: var(--font-zakladni);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: var(--prechod);
+  cursor: pointer;
+}
+
+/* Zlaté vyplněné tlačítko */
+.tlacitko-hlavni {
+  background: var(--zlata);
+  color: var(--tmava-modra);
+  border: 2px solid var(--zlata);
+}
+.tlacitko-hlavni:hover {
+  background: var(--zlata-svetla);
+  border-color: var(--zlata-svetla);
+  transform: translateY(-2px);  /* Mírný pohyb nahoru při hover */
+  box-shadow: var(--stin-zlaty);
+}
+
+/* Průhledné tlačítko s zlatým okrajem */
+.tlacitko-vedlejsi {
+  background: transparent;
+  color: var(--bila);
+  border: 2px solid rgba(255,255,255,0.5);
+}
+.tlacitko-vedlejsi:hover {
+  border-color: var(--zlata);
+  color: var(--zlata);
+  transform: translateY(-2px);
+}
+
+/* Malé tlačítko */
+.tlacitko-male {
+  padding: 8px 20px;
+  font-size: var(--font-maly);
+  background: transparent;
+  color: var(--zlata);
+  border: 1px solid var(--zlata);
+  border-radius: var(--zaobleni);
+}
+.tlacitko-male:hover {
+  background: var(--zlata);
+  color: var(--tmava-modra);
+}
+
+/* Tlačítko přes celou šířku */
+.tlacitko-plny {
+  width: 100%;
+  text-align: center;
+}
+
+
+/* ===========================================================
+   5. NAVIGACE (Hlavička / Menu)
+=========================================================== */
+
+/* Hlavička – fixně nahoře, vždy viditelná */
+.hlavicka {
+  position: fixed;          /* Zůstane na místě i při scrollování */
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;            /* Vrstvení – 1000 = vždy nahoře */
+  height: 80px;
+  
+  /* Výchozí: průhledná */
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: var(--prechod);
+}
+
+/* Třída přidaná Javascriptem po scrollnutí */
+.hlavicka.scrollovano {
+  background: rgba(10, 22, 40, 0.97);
+  border-bottom-color: rgba(201, 168, 76, 0.2);
+  backdrop-filter: blur(10px);  /* Efekt rozmazaného skla */
+}
+
+.navigace {
+  display: flex;                /* Flex = prvky vedle sebe */
+  align-items: center;          /* Zarovnání na střed vertikálně */
+  justify-content: space-between; /* Mezera mezi logo a menu */
+  height: 100%;
+  padding: 0 var(--mezera-l);
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* LOGO – nyní obrázek */
+.logo {
+  display: flex;
+  align-items: center;
+  line-height: 1.1;
+}
+
+/* Obrázkové logo v navigaci */
+.logo-obrazek {
+  display: block;
+}
+
+.logo-img {
+  /* Výška loga v navigaci – uprav podle potřeby */
+  height: 54px;
+  width: auto;
+  display: block;
+  /* Odfiltruje bílé pozadí u PNG s bílým bg – u JPEG nemá efekt */
+  filter: drop-shadow(0 0 8px rgba(201, 168, 76, 0.25));
+  transition: var(--prechod);
+}
+
+.logo-img:hover {
+  filter: drop-shadow(0 0 14px rgba(201, 168, 76, 0.5));
+  transform: scale(1.03);
+}
+
+/* Textové logo (záloha, pokud není obrázek) */
+.logo-text {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--zlata);
+  letter-spacing: 0.15em;
+}
+
+.logo-podtext {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--seda);
+}
+
+/* MENU – seznam odkazů */
+.menu {
+  display: flex;
+  gap: var(--mezera-l);  /* Mezera mezi položkami */
+}
+
+/* Každý odkaz v menu */
+.menu-odkaz {
+  font-size: var(--font-maly);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--bila-pruhledna);
+  position: relative;
+  padding-bottom: 4px;
+}
+
+/* Zlatá podtržítko linka při hover – kreslí se přes ::after pseudoelement */
+.menu-odkaz::after {
+  content: '';              /* Prázdný obsah – jen vizuální čára */
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;                 /* Výchozí šířka: 0 (neviditelná) */
+  height: 2px;
+  background: var(--zlata);
+  transition: width 0.3s ease;  /* Animace: šířka se mění */
+}
+
+.menu-odkaz:hover {
+  color: var(--zlata);
+}
+
+.menu-odkaz:hover::after,
+.menu-odkaz.aktivni::after {
+  width: 100%;              /* Na hover se rozšíří na 100% = viditelná čára */
+}
+
+/* Hamburger – mobilní tlačítko pro menu (skryté na desktopu) */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  padding: 8px;
+}
+
+.hamburger span {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--bila);
+  transition: var(--prechod);
+}
+
+/* Animace hamburgeru při otevření */
+.hamburger.otevreno span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.hamburger.otevreno span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.otevreno span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+
+/* ===========================================================
+   6. HERO SEKCE (Úvod)
+=========================================================== */
+
+.sekce-uvod {
+  /* 
+    POZADÍ ÚVODNÍ SEKCE:
+    Změň URL obrázku zde nebo použij lokální soubor.
+    
+    Lokální soubor: url('../obrazky/uvod-pozadi.jpg')
+    Pozor: cesta jde od tohoto CSS souboru (ve složce css/),
+    proto musíš jít o složku výš: ../
+  */
+  background-image: 
+    url('/obrazky/pozadi.jpg');
+  background-size: cover;       /* Pokryje celou plochu */
+  background-position: center;  /* Obrázek vycentrovaný */
+  background-attachment: fixed; /* Parallax efekt – pozadí se nepohybuje */
+  
+  position: relative;           /* Potřebné pro absolutní pozicování dítěte */
+  min-height: 100vh;            /* 100vh = 100% výšky okna prohlížeče */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+/* Tmavý překryv – zlepšuje čitelnost textu na fotce */
+.uvod-prekryv {
+  position: absolute;
+  inset: 0;                     /* Zkratka pro top:0, right:0, bottom:0, left:0 */
+  background: linear-gradient(
+    180deg,
+    rgba(10, 22, 40, 0.6) 0%,
+    rgba(10, 22, 40, 0.85) 100%
+  );
+}
+
+.uvod-obsah {
+  position: relative;           /* Aby byl nad překryvem */
+  z-index: 2;
+  max-width: 800px;
+  padding: 0 var(--mezera-l);
+}
+
+.uvod-podnadpis {
+  font-size: var(--font-maly);
+  font-weight: 600;
+  letter-spacing: 0.5em;
+  text-transform: uppercase;
+  color: var(--zlata);
+  margin-bottom: var(--mezera-m);
+}
+
+/* Obří nadpis na úvodní stránce */
+.uvod-nadpis {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem, 10vw, 7rem);  /* clamp = min, preferované, max */
+  font-weight: 700;
+  color: var(--bila);
+  line-height: 1;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--mezera-m);
+  
+  /* Zlatý stín textu */
+  text-shadow: 0 0 60px rgba(201, 168, 76, 0.4);
+}
+
+.uvod-perex {
+  font-size: var(--font-stredni);
+  color: rgba(255, 255, 255, 0.75);
+  margin-bottom: var(--mezera-xl);
+  line-height: 1.8;
+}
+
+.uvod-tlacitka {
+  display: flex;
+  gap: var(--mezera-m);
+  justify-content: center;
+  flex-wrap: wrap;              /* Na mobilech se zabalí pod sebe */
+}
+
+/* Animovaná šipka dolů */
+.sipka-dolu {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);  /* Vycentrování */
+  z-index: 2;
+  color: var(--zlata);
+  font-size: 1.5rem;
+  
+  /* Nekonečná animace skákání */
+  animation: skakani 2s ease-in-out infinite;
+}
+
+@keyframes skakani {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(10px); }
+}
+
+
+/* ===========================================================
+   7. SEKCE KAPELA
+=========================================================== */
+
+.kapela-sekce {
+  background-color: var(--stredni-modra);
+  position: relative;
+}
+
+/* Dekorativní element nahoře sekce */
+.kapela-sekce::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--zlata), transparent);
+}
+
+/* Rozložení: text vlevo, foto vpravo */
+.kapela-obsah {
+  display: grid;
+  grid-template-columns: 1fr 1fr;   /* Dva stejně široké sloupce */
+  gap: var(--mezera-xl);
+  align-items: center;
+  margin-bottom: var(--mezera-xxl);
+}
+
+.kapela-text h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: var(--font-velky);
+  color: var(--zlata);
+  margin-bottom: var(--mezera-m);
+}
+
+.kapela-text p {
+  color: var(--seda);
+  margin-bottom: var(--mezera-m);
+  line-height: 1.8;
+}
+
+/* Statistiky v číslech */
+.fakta {
+  display: flex;
+  gap: var(--mezera-l);
+  margin-top: var(--mezera-xl);
+  padding-top: var(--mezera-l);
+  border-top: 1px solid rgba(201, 168, 76, 0.2);
+}
+
+.fakt {
+  text-align: center;
+}
+
+.fakt-cislo {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--zlata);
+  line-height: 1;
+}
+
+.fakt-popis {
+  font-size: var(--font-maly);
+  color: var(--seda);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* Obrázek kapely */
+.kapela-foto {
+  position: relative;
+}
+
+.kapela-obrazek {
+  width: 100%;
+  /* Výška se přizpůsobí obsahu – fotka se zobrazí celá bez ořezu */
+  max-height: 560px;
+  object-fit: contain;          /* Celá fotka viditelná, žádný ořez */
+  object-position: center;
+  border-radius: var(--zaobleni-velke);
+  background: rgba(0,0,0,0.15); /* Jemné tmavé pozadí za fotkou */
+  border: 2px solid rgba(201, 168, 76, 0.3);
+  box-shadow: var(--stin), var(--stin-zlaty);
+}
+
+/* Dekorativní rámeček za fotkou */
+.kapela-foto::after {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  right: -20px;
+  bottom: -20px;
+  border: 2px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--zaobleni-velke);
+  z-index: -1;
+}
+
+
+/* Sekce Sestava / Muzikanti byla odstraněna */
+
+
+/* ===========================================================
+   8. SEKCE KALENDÁŘ AKCÍ
+=========================================================== */
+
+.kalendar-sekce {
+  background-color: var(--tmava-modra);
+}
+
+.akce-seznam {
+  display: flex;
+  flex-direction: column;  /* Karty pod sebou */
+  gap: var(--mezera-m);
+}
+
+/* Karta jedné akce */
+.akce-karta {
+  display: grid;
+  grid-template-columns: 100px 1fr auto;  /* Datum | Info | Akce */
+  align-items: center;
+  gap: var(--mezera-l);
+  padding: var(--mezera-l) var(--mezera-xl);
+  background: var(--stredni-modra);
+  border: 1px solid rgba(201, 168, 76, 0.1);
+  border-radius: var(--zaobleni-velke);
+  transition: var(--prechod);
+}
+
+.akce-karta:hover {
+  border-color: rgba(201, 168, 76, 0.4);
+  transform: translateX(4px);   /* Mírný pohyb doprava */
+  box-shadow: var(--stin);
+}
+
+/* Datum akce */
+.akce-datum {
+  text-align: center;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.2);
+  border-radius: var(--zaobleni);
+  padding: var(--mezera-m) var(--mezera-s);
+}
+
+.datum-den {
+  display: block;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--zlata);
+  line-height: 1;
+}
+
+.datum-mesic {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--seda);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Informace o akci */
+.akce-nazev {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  color: var(--bila);
+  margin-bottom: 6px;
+}
+
+.akce-misto,
+.akce-cas {
+  font-size: var(--font-maly);
+  color: var(--seda);
+  margin-bottom: 4px;
+}
+
+.akce-misto i,
+.akce-cas i {
+  color: var(--zlata);
+  width: 16px;
+  margin-right: 6px;
+}
+
+.akce-popis {
+  font-size: var(--font-maly);
+  color: rgba(138, 154, 181, 0.7);
+  margin-top: var(--mezera-s);
+  font-style: italic;
+}
+
+/* Štítky u akce */
+.akce-stitek {
+  display: inline-block;
+  padding: 6px 14px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: rgba(201, 168, 76, 0.1);
+  color: var(--zlata);
+  border: 1px solid rgba(201, 168, 76, 0.3);
+  border-radius: 20px;
+  white-space: nowrap;          /* Nezalamovat text */
+}
+
+.akce-stitek-soukrome {
+  background: rgba(138, 154, 181, 0.1);
+  color: var(--seda);
+  border-color: rgba(138, 154, 181, 0.2);
+}
+
+/* Výzva pod kalendářem */
+.kalendar-cta {
+  text-align: center;
+  margin-top: var(--mezera-xl);
+  font-size: var(--font-stredni);
+  color: var(--seda);
+}
+
+.cta-odkaz {
+  color: var(--zlata);
+  font-weight: 700;
+  border-bottom: 1px solid var(--zlata);
+  padding-bottom: 2px;
+}
+.cta-odkaz:hover {
+  color: var(--zlata-svetla);
+}
+
+
+/* ===========================================================
+   9. SEKCE FOTOGALERIE
+=========================================================== */
+
+.galerie-sekce {
+  background-color: var(--stredni-modra);
+}
+
+/* ===========================================================
+   GALERIE – CSS Masonry (columns)
+   Fotky se zobrazují v přirozeném poměru stran – žádný ořez.
+   Portréty (svislé) i krajiny (vodorovné) vedle sebe.
+=========================================================== */
+.galerie-masonry {
+  /* columns = počet sloupců; prohlížeč sám plní sloupce shora dolů */
+  columns: 3;
+  column-gap: 0.6rem;
+}
+
+/* Každá fotka v galerii */
+.galerie-polozka {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--zaobleni);
+  cursor: pointer;
+  /* break-inside: avoid = fotka se nerozdělí mezi sloupce */
+  break-inside: avoid;
+  margin-bottom: 0.6rem;
+  display: block;
+}
+
+.galerie-polozka img {
+  /* width 100% + height auto = přirozený poměr, žádný ořez */
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.4s ease;
+}
+
+.galerie-polozka:hover img {
+  transform: scale(1.04);
+}
+
+/* Tmavý překryv při hover s ikonou */
+.galerie-prekryv {
+  position: absolute;
+  inset: 0;
+  background: rgba(10, 22, 40, 0);  /* Průhledný */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.3s ease;
+}
+
+.galerie-prekryv i {
+  color: var(--zlata);
+  font-size: 2rem;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: var(--prechod);
+}
+
+.galerie-polozka:hover .galerie-prekryv {
+  background: rgba(10, 22, 40, 0.6);
+}
+
+.galerie-polozka:hover .galerie-prekryv i {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* LIGHTBOX – zvětšený náhled fotky */
+.lightbox {
+  display: none;                  /* Skrytý dokud není aktivní */
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.95);
+  align-items: center;
+  justify-content: center;
+}
+
+/* Třída přidaná Javascriptem */
+.lightbox.aktivni {
+  display: flex;
+}
+
+.lightbox-obrazek {
+  max-width: 90vw;
+  max-height: 90vh;
+  border-radius: var(--zaobleni);
+  border: 2px solid rgba(201, 168, 76, 0.3);
+}
+
+.lightbox-obsah {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.lightbox-zavrit {
+  position: absolute;
+  top: 20px;
+  right: 30px;
+  font-size: 3rem;
+  color: var(--bila);
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.2s;
+  z-index: 10001;
+}
+.lightbox-zavrit:hover {
+  color: var(--zlata);
+}
+
+/* Šipky pro přepínání fotek */
+.lightbox-sipka {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 4rem;
+  font-weight: 300;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 1rem;
+  line-height: 1;
+  transition: color 0.2s, transform 0.2s;
+  z-index: 10001;
+  user-select: none;
+}
+
+.lightbox-sipka:hover {
+  color: var(--zlata);
+}
+
+.lightbox-sipka-vlevo {
+  left: 20px;
+}
+.lightbox-sipka-vlevo:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.lightbox-sipka-vpravo {
+  right: 20px;
+}
+.lightbox-sipka-vpravo:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+/* Počítadlo fotek: "3 / 8" */
+.lightbox-pocitadlo {
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+}
+
+/* Na mobilu – šipky menší a blíže k okraji */
+@media screen and (max-width: 640px) {
+  .lightbox-sipka {
+    font-size: 2.5rem;
+    padding: 0.5rem;
+  }
+  .lightbox-sipka-vlevo { left: 5px; }
+  .lightbox-sipka-vpravo { right: 5px; }
+}
+
+
+/* ===========================================================
+   10. SEKCE KONTAKTY
+=========================================================== */
+
+.kontakty-sekce {
+  background-color: var(--tmava-modra);
+}
+
+/* ─── KONTAKTY – nové rozložení (bez formuláře) ─── */
+
+/* Krátký úvodní text nad kartami */
+.kontakty-uvod {
+  text-align: center;
+  color: var(--seda);
+  font-size: var(--font-stredni);
+  max-width: 620px;
+  margin: 0 auto var(--mezera-xl);
+  line-height: 1.8;
+}
+
+/* Tři karty vedle sebe */
+.kontakty-karty {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--mezera-l);
+  margin-bottom: var(--mezera-xl);
+}
+
+/* Jednotlivá kontaktní karta */
+.kontakt-karta {
+  text-align: center;
+  padding: 2.5rem 1.5rem 2rem;
+  background: var(--stredni-modra);
+  border: 1px solid rgba(201, 168, 76, 0.12);
+  border-radius: var(--zaobleni-velke);
+  transition: var(--prechod);
+}
+
+.kontakt-karta:hover {
+  border-color: rgba(201, 168, 76, 0.4);
+  transform: translateY(-5px);
+  box-shadow: var(--stin), var(--stin-zlaty);
+}
+
+/* Zlatá ikona nahoře karty */
+.kontakt-karta-ikona {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(201, 168, 76, 0.1);
+  border: 1px solid rgba(201, 168, 76, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--mezera-m);
+  font-size: 1.3rem;
+  color: var(--zlata);
+  transition: var(--prechod);
+}
+
+.kontakt-karta:hover .kontakt-karta-ikona {
+  background: rgba(201, 168, 76, 0.18);
+  box-shadow: var(--stin-zlaty);
+}
+
+/* Název kontaktu (E-mail / Telefon / Sídlo) */
+.kontakt-karta-nazev {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  color: var(--bila);
+  letter-spacing: 0.05em;
+  margin-bottom: 0.6rem;
+}
+
+/* Hodnota kontaktu */
+.kontakt-karta-hodnota {
+  display: block;
+  font-size: var(--font-zakladni);
+  color: var(--seda);
+  transition: color 0.2s;
+  word-break: break-all;
+}
+
+a.kontakt-karta-hodnota:hover {
+  color: var(--zlata);
+}
+
+/* Sociální ikony v kontaktech – centrované pod kartami */
+.kontakty-socialni {
+  text-align: center;
+  margin-top: var(--mezera-l);
+}
+
+.kontakty-socialni-titulek {
+  font-size: var(--font-maly);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--seda);
+  margin-bottom: var(--mezera-m);
+}
+
+/* Zachovává původní selektory pro zpětnou kompatibilitu */
+.kontakty-socialni p {
+  color: var(--seda);
+  margin-bottom: var(--mezera-m);
+  font-size: var(--font-maly);
+}
+
+.soc-ikony {
+  display: flex;
+  gap: var(--mezera-m);
+  justify-content: center;
+}
+
+.soc-ikona {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: var(--prechod);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--bila);
+}
+
+.soc-ikona:hover {
+  transform: translateY(-3px);
+  border-color: var(--zlata);
+}
+
+.soc-ikona.facebook:hover { background: #1877f2; border-color: #1877f2; }
+.soc-ikona.instagram:hover { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366); border-color: #dc2743; }
+.soc-ikona.youtube:hover { background: #ff0000; border-color: #ff0000; }
+
+
+/* Kontaktní formulář byl odstraněn */
+
+
+
+
+/* ===========================================================
+   KALENDÁŘ AKCÍ – stavy načítání / chyby / prázdno
+   Tyto třídy se zobrazují/skrývají přes JavaScript
+=========================================================== */
+
+/* Stav načítání – spinner + text */
+.akce-nacitani {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 4rem 2rem;
+  color: var(--seda);
+  font-size: var(--font-stredni);
+}
+
+/* Točící se kruh – čistá CSS animace */
+.nacitani-spinner {
+  width: 44px;
+  height: 44px;
+  border: 3px solid rgba(201, 168, 76, 0.15);
+  border-top-color: var(--zlata);
+  border-radius: 50%;
+  animation: spinner 0.8s linear infinite;
+}
+
+@keyframes spinner {
+  to { transform: rotate(360deg); }
+}
+
+/* Stav chyby */
+.akce-chyba {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--seda);
+}
+
+.akce-chyba i {
+  font-size: 2.5rem;
+  color: rgba(201, 168, 76, 0.5);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.akce-chyba p {
+  margin-bottom: 0.5rem;
+}
+
+.akce-chyba-detail {
+  font-size: var(--font-maly);
+  color: rgba(138, 154, 181, 0.6);
+  line-height: 1.7;
+}
+
+/* Stav prázdné tabulky */
+.akce-prazdne {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: var(--seda);
+}
+
+.akce-prazdne i {
+  font-size: 2.5rem;
+  color: rgba(201, 168, 76, 0.3);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* ===========================================================
+   11. PATIČKA (Footer)
+=========================================================== */
+
+.paticka {
+  background: var(--tmava-modra);
+  border-top: 1px solid rgba(201, 168, 76, 0.15);
+  padding: var(--mezera-xl) 0 var(--mezera-l);
+  position: relative;
+}
+
+.paticka-horni {
+    display: flex;
+    justify-content: center; /* Vycentruje celé menu horizontálně na střed stránky */
+    align-items: center;
+    gap: var(--mezera-xl);
+    margin-bottom: var(--mezera-xl);
+}
+
+.paticka-logo {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Logo obrázek v patičce */
+.paticka-logo-img {
+  height: 70px;
+  width: auto;
+  display: block;
+  /* Mírný zlatý odlesk */
+  filter: drop-shadow(0 0 6px rgba(201, 168, 76, 0.2));
+  opacity: 0.9;
+  transition: var(--prechod);
+}
+
+.paticka-logo-img:hover {
+  opacity: 1;
+  filter: drop-shadow(0 0 12px rgba(201, 168, 76, 0.4));
+}
+
+/* Navigace v patičce */
+.paticka-nav {
+    display: flex;
+    flex-direction: column;   /* Seřadí odkazy pod sebe do sloupce */
+    align-items: center;       /* Vycentruje texty odkazů a ikony na střed */
+    text-align: center;
+}
+
+.paticka-nav a {
+  font-size: var(--font-maly);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--seda);
+  
+}
+
+.paticka-nav a:hover {
+  color: var(--zlata);
+}
+
+/* Sociální sítě v patičce */
+.paticka-socialni {
+  display: flex;
+  gap: var(--mezera-m);
+  justify-content: flex-end;
+}
+
+.paticka-socialni a {
+  color: var(--seda);
+  font-size: 1.2rem;
+  transition: var(--prechod);
+}
+
+.paticka-socialni a:hover {
+  color: var(--zlata);
+  transform: translateY(-3px);
+}
+
+/* Dělicí čára */
+.paticka-oddelovac {
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: var(--mezera-l);
+}
+
+/* Spodní řádek patičky – zarovnáno na střed */
+.paticka-spodni {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--font-maly);
+  color: rgba(138, 154, 181, 0.5);
+  text-align: center;
+}
+
+/* Tlačítko "Zpět nahoru" */
+.zpet-nahoru {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 48px;
+  height: 48px;
+  background: var(--zlata);
+  color: var(--tmava-modra);
+  border-radius: 50%;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--stin);
+  transition: var(--prechod);
+  
+  /* Výchozí: skryté */
+  opacity: 0;
+  pointer-events: none;  /* Nelze kliknout */
+  transform: translateY(20px);
+  z-index: 500;
+}
+
+/* Třída přidaná Javascriptem */
+.zpet-nahoru.viditelne {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.zpet-nahoru:hover {
+  background: var(--zlata-svetla);
+  transform: translateY(-3px);
+}
+
+
+/* ===========================================================
+   12. ANIMACE (Scroll animace)
+   Třídy přidávané Javascriptem při scrollování
+=========================================================== */
+
+/* Výchozí stav – prvek je neviditelný */
+.animace-nahoru {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.animace-vlevo {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+.animace-vpravo {
+  opacity: 0;
+  transform: translateX(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+
+/* Stav po přijetí třídy "viditelne" – prvek se zobrazí */
+.animace-nahoru.viditelne,
+.animace-vlevo.viditelne,
+.animace-vpravo.viditelne {
+  opacity: 1;
+  transform: translate(0, 0);
+}
+
+/* Postupné zobrazení karet s prodlevou */
+.clen-karta:nth-child(1) { transition-delay: 0.05s; }
+.clen-karta:nth-child(2) { transition-delay: 0.10s; }
+.clen-karta:nth-child(3) { transition-delay: 0.15s; }
+.clen-karta:nth-child(4) { transition-delay: 0.20s; }
+.clen-karta:nth-child(5) { transition-delay: 0.25s; }
+.clen-karta:nth-child(6) { transition-delay: 0.30s; }
+
+.akce-karta:nth-child(1) { transition-delay: 0.05s; }
+.akce-karta:nth-child(2) { transition-delay: 0.10s; }
+.akce-karta:nth-child(3) { transition-delay: 0.15s; }
+.akce-karta:nth-child(4) { transition-delay: 0.20s; }
+.akce-karta:nth-child(5) { transition-delay: 0.25s; }
+
+.galerie-polozka:nth-child(1) { transition-delay: 0.05s; }
+.galerie-polozka:nth-child(2) { transition-delay: 0.10s; }
+.galerie-polozka:nth-child(3) { transition-delay: 0.15s; }
+.galerie-polozka:nth-child(4) { transition-delay: 0.20s; }
+.galerie-polozka:nth-child(5) { transition-delay: 0.25s; }
+.galerie-polozka:nth-child(6) { transition-delay: 0.30s; }
+.galerie-polozka:nth-child(7) { transition-delay: 0.35s; }
+.galerie-polozka:nth-child(8) { transition-delay: 0.40s; }
+
+
+/* ===========================================================
+   13. RESPONZIVITA (Media Queries)
+   
+   Responzivita = web se přizpůsobí různým velikostem obrazovky.
+   
+   @media screen and (max-width: XXXpx) { ... }
+   = styly platí POUZE pokud je obrazovka úzká
+   
+   Breakpointy (hranice):
+   - Tablet: max-width: 992px
+   - Mobil: max-width: 640px
+=========================================================== */
+
+/* ---- TABLET (šířka do 992px) ---- */
+@media screen and (max-width: 992px) {
+
+  /* Nadpisy sekce menší */
+  .sekce-nadpis {
+    font-size: 2rem;
+  }
+
+  /* Kapela: jeden sloupec místo dvou */
+  .kapela-obsah {
+    grid-template-columns: 1fr;
+  }
+
+  /* Fotka jde pod text */
+  .kapela-foto {
+    order: -1;   /* Přesune PŘED text */
+  }
+
+  .kapela-obrazek {
+    height: 350px;
+  }
+
+  /* Kalendář: zmenšení paddings */
+  .akce-karta {
+    grid-template-columns: 80px 1fr auto;
+    padding: var(--mezera-m) var(--mezera-l);
+    gap: var(--mezera-m);
+  }
+
+  /* Kontakty: karty pod sebou na tabletu */
+  .kontakty-karty {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* Galerie: 2 sloupce na tabletu */
+  .galerie-masonry {
+    columns: 2;
+  }
+
+  /* Patička: přeskládání */
+  .paticka-horni {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .paticka-socialni {
+    justify-content: center;
+  }
+
+  .paticka-spodni {
+    flex-direction: column;
+    gap: var(--mezera-s);
+    text-align: center;
+  }
+
+}
+
+/* ---- MOBIL (šířka do 640px) ---- */
+@media screen and (max-width: 640px) {
+
+  /* Zobrazit hamburger, skrýt menu */
+  .hamburger {
+    display: flex;
+  }
+
+  /* Menu schovat a zobrazit při kliknutí */
+  .menu {
+    position: fixed;
+    inset: 0;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--mezera-xl);
+    background: rgba(10, 22, 40, 0.98);
+    backdrop-filter: blur(10px);
+    
+    /* Skryté výchozím stavem */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 999;
+  }
+
+  /* Menu otevřené – přidává JS */
+  .menu.otevreno {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .menu-odkaz {
+    font-size: 1.3rem;
+  }
+
+  /* Úvod */
+  .uvod-nadpis {
+    font-size: clamp(2.5rem, 15vw, 4rem);
+  }
+
+  .uvod-tlacitka {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  /* Fakta: zmenšení */
+  .fakta {
+    gap: var(--mezera-m);
+  }
+
+  .fakt-cislo {
+    font-size: 1.8rem;
+  }
+
+  /* Galerie: 2 sloupce */
+  /* Galerie: 2 sloupce na mobilu (portréty jsou dost úzké pro 1) */
+  .galerie-masonry {
+    columns: 2;
+    column-gap: 0.4rem;
+  }
+
+  .galerie-polozka {
+    margin-bottom: 0.4rem;
+  }
+
+  /* Kalendář: kompaktnější */
+  .akce-karta {
+    grid-template-columns: 60px 1fr;
+    gap: var(--mezera-m);
+    padding: var(--mezera-m);
+  }
+
+  /* Skrýt štítek na mobilu */
+  .akce-akce {
+    display: none;
+  }
+
+  /* Tlačítko zpět nahoru – menší */
+  .zpet-nahoru {
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Formulář v kontaktech */
+  .kontakty-formular {
+    padding: var(--mezera-l) var(--mezera-m);
+  }
+
+}
