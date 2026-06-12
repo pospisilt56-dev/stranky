@@ -1401,15 +1401,26 @@ a.kontakt-karta-hodnota:hover {
 /* ---- MOBIL (šířka do 640px) ---- */
 @media screen and (max-width: 640px) {
 
+  /* OPRAVA: Zrušíme blur efekt u hlavičky na mobilu, který omezoval výšku fixed menu */
+  .hlavicka.scrollovano {
+    backdrop-filter: none;
+  }
+
   /* Zobrazit hamburger, skrýt menu */
   .hamburger {
     display: flex;
+    position: relative; /* Přidáno: Nutné pro z-index */
+    z-index: 1001;      /* Přidáno: Hamburger musí být VŽDY nad otevřeným menu (které má 999) */
   }
 
   /* Menu schovat a zobrazit při kliknutí */
   .menu {
     position: fixed;
-    inset: 0;
+    /* OPRAVA: Změna z inset: 0; na exaktní rozměry pro 100% jistotu napříč prohlížeči */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -1453,7 +1464,6 @@ a.kontakt-karta-hodnota:hover {
     font-size: 1.8rem;
   }
 
-  /* Galerie: 2 sloupce */
   /* Galerie: 2 sloupce na mobilu (portréty jsou dost úzké pro 1) */
   .galerie-masonry {
     columns: 2;
