@@ -126,71 +126,150 @@ function inicializujScrollAnimace() {
 
 
 /* ============================================================
-   LIGHTBOX – zvětšený náhled fotky, navigace šipkami
-   Funguje s masonry galerií (img tagy bez pevné výšky).
+   LIGHTBOX – fotky i videa, navigace šipkami / klávesy / swipe
+
+   Jak funguje podpora videa:
+   - Každá položka galerie je buď fotka (.galerie-polozka s <img>)
+     nebo video (.galerie-polozka.galerie-video s atributem data-src).
+   - Při otevření lightboxu JS zkontroluje typ položky a zobrazí
+     buď <img> nebo <video> přehrávač.
+   - Při přepnutí / zavření se video automaticky zastaví.
 ============================================================ */
 function inicializujGalerii() {
-  var lightbox   = document.getElementById('lightbox');
-  var lbOb       = document.getElementById('lightboxObrazek');
-  var lbZavrit   = document.getElementById('lightboxZavrit');
-  var lbVlevo    = document.getElementById('lightboxVlevo');
-  var lbVpravo   = document.getElementById('lightboxVpravo');
+  var lightbox    = document.getElementById('lightbox');
+  var lbObrazek   = document.getElementById('lightboxObrazek');
+  var lbVideo     = document.getElementById('lightboxVideo');
+  var lbVideoSrc  = document.getElementById('lightboxVideoSrc');
+  var lbZavrit    = document.getElementById('lightboxZavrit');
+  var lbVlevo     = document.getElementById('lightboxVlevo');
+  var lbVpravo    = document.getElementById('lightboxVpravo');
   var lbPocitadlo = document.getElementById('lightboxPocitadlo');
 
-  if (!lightbox || !lbOb) return;
+  if (!lightbox || !lbObrazek) return;
 
-  /* Načti všechny fotky galerie do pole */
-  var fotky = Array.from(document.querySelectorAll('.galerie-polozka img'));
+  /*
+    Načteme VŠECHNY položky galerie do jednoho pole –
+    jak fotky tak videa, v pořadí jak jsou v HTML.
+    Každá položka je objekt s typem a zdrojem.
+  */
+  var polozky = Array.from(document.querySelectorAll('.galerie-polozka')).map(function (el) {
+    if (el.classList.contains('galerie-video')) {
+      /* Video položka – zdroj je v atributu data-src */
+      return {
+        typ:   'video',
+        src:   el.getAttribute('data-src') || '',
+        popis: el.getAttribute('data-popis') || 'Video',
+        el:    el
+      };
+    } else {
+      /* Foto položka – zdroj je v src obrázku */
+      var img = el.querySelector('img');
+      return {
+        typ:   'foto',
+        src:   img ? img.src  : '',
+        popis: img ? img.alt  : '',
+        el:    el
+      };
+    }
+  });
+
   var index = 0;
 
-  /* Plynulý přechod při změně fotky */
-  lbOb.style.transition = 'opacity 0.18s ease';
+  /* Plynulý přechod pro obrázky */
+  lbObrazek.style.transition = 'opacity 0.18s ease';
 
-  function zobraz(i) {
-    if (i < 0) i = fotky.length - 1;
-    if (i >= fotky.length) i = 0;
-    index = i;
-    lbOb.style.opacity = '0';
-    setTimeout(function () {
-      lbOb.src = fotky[i].src;
-      lbOb.alt = fotky[i].alt;
-      lbOb.style.opacity = '1';
-    }, 160);
-    if (lbPocitadlo) lbPocitadlo.textContent = (i + 1) + ' / ' + fotky.length;
+  /* Zastaví video a skryje přehrávač */
+  function zastavVideo() {
+    if (lbVideo) {
+      lbVideo.pause();
+      lbVideo.classList.remove('aktivni');
+      if (lbVideoSrc) lbVideoSrc.src = '';
+      lbVideo.load(); /* reset přehrávače */
+    }
   }
 
+  /* Zobrazí položku na pozici i */
+  function zobraz(i) {
+    if (i < 0) i = polozky.length - 1;
+    if (i >= polozky.length) i = 0;
+    index = i;
+
+    var p = polozky[i];
+
+    /* Zastav případné přehrávané video */
+    zastavVideo();
+
+    if (p.typ === 'video') {
+      /* ── VIDEO ── */
+      lbObrazek.style.display = 'none';
+
+      if (lbVideoSrc) lbVideoSrc.src = p.src;
+      if (lbVideo) {
+        lbVideo.load();      /* načti nový zdroj */
+        lbVideo.classList.add('aktivni');
+        /* Automatické přehrání hned po otevření */
+        lbVideo.play().catch(function () {
+          /* Některé prohlížeče blokují autoplay – nevadí, uživatel klikne sám */
+        });
+      }
+
+    } else {
+      /* ── FOTKA ── */
+      if (lbVideo) lbVideo.classList.remove('aktivni');
+      lbObrazek.style.display = '';
+      lbObrazek.style.opacity = '0';
+      setTimeout(function () {
+        lbObrazek.src = p.src;
+        lbObrazek.alt = p.popis;
+        lbObrazek.style.opacity = '1';
+      }, 160);
+    }
+
+    if (lbPocitadlo) lbPocitadlo.textContent = (i + 1) + ' / ' + polozky.length;
+  }
+
+  /* Zavře lightbox a zastaví vše */
   function zavri() {
+    zastavVideo();
     lightbox.classList.remove('aktivni');
     document.body.style.overflow = '';
   }
 
-  /* Kliknutí na fotku v galerii */
-  fotky.forEach(function (f, i) {
-    f.parentElement.addEventListener('click', function () {
+  /* Kliknutí na libovolnou položku galerie */
+  polozky.forEach(function (p, i) {
+    p.el.addEventListener('click', function () {
       zobraz(i);
       lightbox.classList.add('aktivni');
       document.body.style.overflow = 'hidden';
     });
   });
 
-  if (lbZavrit)  lbZavrit.addEventListener('click', zavri);
-  if (lbVlevo)   lbVlevo.addEventListener('click',  function (e) { e.stopPropagation(); zobraz(index - 1); });
-  if (lbVpravo)  lbVpravo.addEventListener('click',  function (e) { e.stopPropagation(); zobraz(index + 1); });
+  /* Ovládání lightboxu */
+  if (lbZavrit) lbZavrit.addEventListener('click', zavri);
+  if (lbVlevo)  lbVlevo.addEventListener('click',  function (e) { e.stopPropagation(); zobraz(index - 1); });
+  if (lbVpravo) lbVpravo.addEventListener('click',  function (e) { e.stopPropagation(); zobraz(index + 1); });
 
-  lightbox.addEventListener('click', function (e) { if (e.target === lightbox) zavri(); });
+  /* Zavření kliknutím na tmavé pozadí */
+  lightbox.addEventListener('click', function (e) {
+    if (e.target === lightbox) zavri();
+  });
 
   /* Klávesnice */
   document.addEventListener('keydown', function (e) {
     if (!lightbox.classList.contains('aktivni')) return;
     if (e.key === 'Escape')     zavri();
-    if (e.key === 'ArrowLeft')  zobraz(index - 1);
-    if (e.key === 'ArrowRight') zobraz(index + 1);
+    /* Šipky fungují jen pro fotky – u videa nechceme přerušit přehrávání */
+    if (e.key === 'ArrowLeft'  && polozky[index].typ !== 'video') zobraz(index - 1);
+    if (e.key === 'ArrowRight' && polozky[index].typ !== 'video') zobraz(index + 1);
   });
 
-  /* Swipe na dotykových zařízeních */
+  /* Swipe na dotykových zařízeních (jen pro fotky) */
   var swipeX = 0;
-  lightbox.addEventListener('touchstart', function (e) { swipeX = e.touches[0].clientX; }, { passive: true });
-  lightbox.addEventListener('touchend',   function (e) {
+  lightbox.addEventListener('touchstart', function (e) {
+    swipeX = e.touches[0].clientX;
+  }, { passive: true });
+  lightbox.addEventListener('touchend', function (e) {
+    if (polozky[index].typ === 'video') return; /* swipe blokujeme u videa */
     var d = swipeX - e.changedTouches[0].clientX;
     if (Math.abs(d) > 50) zobraz(d > 0 ? index + 1 : index - 1);
   });
