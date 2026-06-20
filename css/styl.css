@@ -752,6 +752,42 @@ button {
 }
 
 /* ===========================================================
+   GALERIE – mezisekce "Fotky" / "Videa"
+   Malý nadpis oddělující dvě skupiny v rámci jedné galerie.
+=========================================================== */
+.galerie-podnadpis {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--zlata);
+  letter-spacing: 0.04em;
+  margin-bottom: 1.2rem;
+}
+
+/* Ikona před textem nadpisu */
+.galerie-podnadpis i {
+  font-size: 1.1rem;
+  opacity: 0.85;
+}
+
+/* Druhý nadpis (Videa) – mezera nad ním, odděluje ho od fotek nad ním */
+.galerie-podnadpis-video {
+  margin-top: 3rem;
+}
+
+/* Tenká zlatá linka za textem nadpisu – jen vizuální oddělovač */
+.galerie-podnadpis::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(201, 168, 76, 0.3), transparent);
+  margin-left: 0.5rem;
+}
+
+/* ===========================================================
    GALERIE – CSS Masonry (columns)
    Fotky se zobrazují v přirozeném poměru stran – žádný ořez.
    Portréty (svislé) i krajiny (vodorovné) vedle sebe.
@@ -1465,35 +1501,48 @@ a.kontakt-karta-hodnota:hover {
 
 }
 
-/* ---- MOBIL (šířka do 640px) ---- */
-@media screen and (max-width: 640px) {
-
-  /* Zobrazit hamburger, skrýt menu */
+/* ---- TABLET ÚZKÝ / VĚTŠÍ MOBIL (do 900px): HAMBURGER MENU ----
+   Plné horizontální menu s 5 položkami se na šířkách pod ~900px
+   nevejde vedle loga a přetéká přes hlavičku do obsahu stránky.
+   Proto se hamburger zobrazuje už od 900px, ne až od 640px. */
+@media (max-width: 768px) {
+  /* Zabráníme posouvání stránky na pozadí, když je menu otevřené (volitelné, ale doporučené) */
+  body.menu-otevreno {
+    overflow: hidden;
+  }
+  /* Zobrazit hamburger, skrýt vodorovné menu */
   .hamburger {
-    display: flex;
+    position: relative;
+    z-index: 1100; /* DŮLEŽITÉ: Hamburger musí mít vyšší z-index než menu (1000), jinak ho překryje pozadí a menu nepůjde zavřít */
   }
 
   /* Menu schovat a zobrazit při kliknutí */
   .menu {
-    position: fixed;
-    inset: 0;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--mezera-xl);
-    background: rgba(10, 22, 40, 0.98);
-    backdrop-filter: blur(10px);
+    position: fixed; /* Zafixuje menu přes celou obrazovku */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh; /* Roztažení na 100 % výšky displeje */
     
-    /* Skryté výchozím stavem */
+    /* TADY JE ZAKOPANÝ PES – chybějící pozadí */
+    background-color: var(--tmava-modra); /* Případně vlož konkrétní barvu, např. #0a1628 */
+    
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Vystředí položky vertikálně */
+    align-items: center;     /* Vystředí položky horizontálně */
+    gap: 2rem;               /* Mezera mezi odkazy */
+    
     opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-    z-index: 999;
+    visibility: hidden;
+    transition: all 0.3s ease-in-out;
+    z-index: 1000; /* Musí být nad zbytkem stránky */
   }
 
   /* Menu otevřené – přidává JS */
   .menu.otevreno {
     opacity: 1;
+    visibility: visible;
     pointer-events: auto;
   }
 
