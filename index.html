@@ -134,6 +134,17 @@
          Masonry layout (CSS columns) – fotky v přirozeném poměru, žádný ořez.
          Kliknutím na fotku se otevře lightbox s navigací.
          JAK PŘIDAT FOTKU: vlož soubor do obrazky/ a zkopíruj jeden blok níže. -->
+    <!-- FOTOGALERIE
+         Rozdělena na dvě podsekce: Fotky a Videa.
+         Obě používají stejný masonry layout (CSS columns) i stejný
+         lightbox – jen jsou v kódu i vizuálně oddělené.
+
+         JAK PŘIDAT FOTKU: zkopíruj blok v galerii FOTKY a uprav
+         src + alt. Vlož soubor do obrazky/.
+
+         JAK PŘIDAT VIDEO: zkopíruj blok v galerii VIDEA a uprav
+         data-src (3×, vč. <source>) + data-popis. Vlož MP4 soubor
+         do obrazky/. Žádné jiné úpravy nejsou potřeba. -->
     <section id="galerie" class="sekce galerie-sekce">
       <div class="kontejner">
         <div class="sekce-hlavicka animace-nahoru">
@@ -142,23 +153,88 @@
           <div class="oddelovac"></div>
         </div>
 
-        <div class="galerie-masonry" id="galerieMasonry">
+        <!-- ════════════════════════════════════════════════════
+             PODSEKCE: FOTKY
+             data-skupina="foto" – podle této hodnoty JS pozná,
+             že šipky v lightboxu mají procházet jen mezi fotkami.
+        ════════════════════════════════════════════════════ -->
+        <h3 class="galerie-podnadpis animace-nahoru">
+          <i class="fas fa-images"></i> Fotky
+        </h3>
+
+        <div class="galerie-masonry" id="galerieMasonryFoto">
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_7.jpeg" alt="Vystoupení na letních slavnostech" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_8.jpeg" alt="Vystoupení na rozsvěcení vánočního stromu" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_9.jpeg" alt="Vystoupení na dnu myslivosti" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_1.jpeg" alt="Vystoupení kapely na plese" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_2.jpeg" alt="Trubkové sekce při hraní" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_3.jpeg" alt="Pozounista při sólu" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_4.jpeg" alt="Barytonista na pódiu" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_5.jpeg" alt="Tenorista při vystoupení" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+          <div class="galerie-polozka animace-nahoru" data-skupina="foto">
+            <img src="obrazky/foto_6.jpeg" alt="Tubista s úsměvem" loading="lazy">
+            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          </div>
+
+        </div><!-- konec galerieMasonryFoto -->
+
+
+        <!-- ════════════════════════════════════════════════════
+             PODSEKCE: VIDEA
+             data-skupina="video" – šipky v lightboxu zůstanou
+             jen mezi videi, neproplétají se s fotkami.
+        ════════════════════════════════════════════════════ -->
+        <h3 class="galerie-podnadpis galerie-podnadpis-video animace-nahoru">
+          <i class="fas fa-film"></i> Videa
+        </h3>
+
+        <div class="galerie-masonry" id="galerieMasonryVideo">
 
           <!--
             ╔══════════════════════════════════════════════════════╗
-            ║  BLOK VIDEA – jak přidat další video:               ║
-            ║  1. Zkopíruj celý tento blok <div class="galerie-   ║
-            ║     polozka galerie-video animace-nahoru">           ║
-            ║  2. V atributu data-src vlož cestu k MP4 souboru    ║
-            ║  3. V atributu poster vlož náhledový obrázek         ║
-            ║     (nepovinné – bez něj prohlížeč vygeneruje sám)  ║
+            ║  BLOK VIDEA – jak přidat další video:                ║
+            ║  1. Zkopíruj celý tento blok                         ║
+            ║  2. V atributu data-src vlož cestu k MP4 souboru     ║
+            ║     (musí se shodovat i uvnitř ve <source src="...">) ║
+            ║  3. Uprav data-popis (text, který se zobrazí          ║
+            ║     v lightboxu nad videem)                          ║
             ╚══════════════════════════════════════════════════════╝
-
-            data-src  = cesta k MP4 souboru ve složce obrazky/
-            poster    = náhledový obrázek (lze vynechat)
-            data-popis = popisek videa v lightboxu (nepovinné)
           -->
           <div class="galerie-polozka galerie-video animace-nahoru"
+               data-skupina="video"
                data-src="obrazky/video_1.mp4"
                data-popis="(Ne)Plechy – záznam z vystoupení">
             <!--
@@ -169,7 +245,6 @@
             <video preload="metadata" muted playsinline tabindex="-1">
               <source src="obrazky/video_1.mp4" type="video/mp4">
             </video>
-            <!-- Překryv s ikonou trojúhelníku – vždy viditelná (ne jen na hover) -->
             <div class="galerie-prekryv galerie-prekryv-video">
               <div class="video-play-ikona">
                 <i class="fas fa-play"></i>
@@ -178,6 +253,7 @@
           </div>
 
           <div class="galerie-polozka galerie-video animace-nahoru"
+               data-skupina="video"
                data-src="obrazky/video_2.mp4"
                data-popis="(Ne)Plechy – záznam z vystoupení">
             <video preload="metadata" muted playsinline tabindex="-1">
@@ -191,6 +267,7 @@
           </div>
 
           <div class="galerie-polozka galerie-video animace-nahoru"
+               data-skupina="video"
                data-src="obrazky/video_3.mp4"
                data-popis="(Ne)Plechy – záznam z vystoupení">
             <video preload="metadata" muted playsinline tabindex="-1">
@@ -204,6 +281,7 @@
           </div>
 
           <div class="galerie-polozka galerie-video animace-nahoru"
+               data-skupina="video"
                data-src="obrazky/video_4.mp4"
                data-popis="(Ne)Plechy – záznam z vystoupení">
             <video preload="metadata" muted playsinline tabindex="-1">
@@ -216,73 +294,36 @@
             </div>
           </div>
 
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_1.jpeg" alt="Vystoupení kapely na plese" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
+          <div class="galerie-polozka galerie-video animace-nahoru"
+               data-skupina="video"
+               data-src="obrazky/video_5.mp4"
+               data-popis="(Ne)Plechy – záznam z vystoupení">
+            <video preload="metadata" muted playsinline tabindex="-1">
+              <source src="obrazky/video_5.mp4" type="video/mp4">
+            </video>
+            <div class="galerie-prekryv galerie-prekryv-video">
+              <div class="video-play-ikona">
+                <i class="fas fa-play"></i>
+              </div>
+            </div>
           </div>
 
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_2.jpeg" alt="Trubkové sekce při hraní" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
+        </div><!-- konec galerieMasonryVideo -->
 
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_3.jpeg" alt="Pozounista při sólu" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
-
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_4.jpeg" alt="Barytonista na pódiu" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
-
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_5.jpeg" alt="Tenorista při vystoupení" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
-
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_6.jpeg" alt="Tubista s úsměvem" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
-
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_7.jpeg" alt="Vystoupení na letních slavnostech" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
-
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_8.jpeg" alt="Vystoupení na rozsvěcení vánočního stromu" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
-
-          <div class="galerie-polozka animace-nahoru">
-            <img src="obrazky/foto_9.jpeg" alt="Vystoupení na dnu myslivosti" loading="lazy">
-            <div class="galerie-prekryv"><i class="fas fa-search-plus"></i></div>
-          </div>
-
-        </div>
       </div>
 
       <!--
-        LIGHTBOX – zobrazí fotky i videa.
-        JavaScript sám rozhodne co zobrazit podle typu položky.
-        Při videu se schová <img> a zobrazí <video>, a naopak.
+        LIGHTBOX – sdílený pro fotky i videa.
+        JavaScript pozná typ položky i skupinu (data-skupina) a šipky
+        pak procházejí jen v rámci stejné skupiny (foto ↔ foto, video ↔ video).
       -->
       <div class="lightbox" id="lightbox">
-        <button class="lightbox-zavrit"                       id="lightboxZavrit" aria-label="Zavřít">&times;</button>
+        <button class="lightbox-zavrit"                      id="lightboxZavrit" aria-label="Zavřít">&times;</button>
         <button class="lightbox-sipka lightbox-sipka-vlevo"  id="lightboxVlevo"  aria-label="Předchozí">&#8249;</button>
 
         <div class="lightbox-obsah">
-          <!-- Obrázek (fotky) -->
           <img class="lightbox-obrazek" id="lightboxObrazek" src="" alt="">
 
-          <!--
-            Video přehrávač (videa).
-            controls  = lišta přehrávače (play/pause, posun, hlasitost)
-            playsinline = přehrává inline na iOS (ne přes full-screen systém)
-            Skrytý dokud není aktivní video.
-          -->
           <video class="lightbox-video" id="lightboxVideo" controls playsinline>
             <source id="lightboxVideoSrc" src="" type="video/mp4">
           </video>
