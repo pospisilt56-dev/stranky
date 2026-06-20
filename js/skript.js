@@ -29,11 +29,118 @@ const MESICE = ['LED','ÚNO','BŘE','DUB','KVĚ','ČVN','ČVC','SRP','ZÁŘ','Ř
 ============================================================ */
 document.addEventListener('DOMContentLoaded', function () {
   inicializujMenu();
+  vynutMobilniMenu();
   inicializujScrollEfekty();
   inicializujScrollAnimace();
   inicializujGalerii();
   nactiKalendar();
 });
+
+
+/* ============================================================
+   VYNUCENÍ MOBILNÍHO MENU – nezávislé na CSS souboru
+
+   PROČ TOHLE EXISTUJE:
+   Hamburger menu se má zobrazit pod 900px šířky okna a skrýt
+   vodorovné menu. Tohle normálně řeší CSS media query, ale
+   pokud se z jakéhokoli důvodu (cache prohlížeče, cache
+   live-server nástroje, špatně uložený soubor…) načte STARÁ
+   verze CSS, vodorovné menu zůstane vykreslené přes obsah
+   stránky i na úzké obrazovce.
+
+   Tahle funkce dělá to samé přímo přes JavaScript inline styly,
+   které mají VŽDY přednost před pravidly v .css souboru.
+   Funguje tedy i kdyby byl styl.css zastaralý nebo se vůbec
+   nenačetl. Spouští se hned po načtení stránky a pak znovu
+   při každé změně velikosti okna (resize).
+============================================================ */
+function vynutMobilniMenu() {
+  var hamburger = document.getElementById('hamburger');
+  var menu      = document.getElementById('menu');
+  if (!hamburger || !menu) return;
+
+  /* Hranice v pixelech – musí odpovídat hodnotě v styl.css (900px) */
+  var HRANICE_MOBIL = 900;
+
+  function aplikuj() {
+    var jeMobil = window.innerWidth <= HRANICE_MOBIL;
+
+    if (jeMobil) {
+      /* ── ÚZKÁ OBRAZOVKA: zobraz hamburger, menu jako skrytý overlay ── */
+      hamburger.style.display = 'flex';
+
+      menu.style.position = 'fixed';
+      menu.style.inset = '0';
+      menu.style.flexDirection = 'column';
+      menu.style.alignItems = 'center';
+      menu.style.justifyContent = 'center';
+      menu.style.gap = '2.5rem';
+      menu.style.background = 'rgba(10, 22, 40, 0.98)';
+      menu.style.backdropFilter = 'blur(10px)';
+      menu.style.zIndex = '1100';
+
+      if (menu.classList.contains('otevreno')) {
+        menu.style.opacity = '1';
+        menu.style.visibility = 'visible';
+        menu.style.pointerEvents = 'auto';
+      } else {
+        menu.style.opacity = '0';
+        menu.style.visibility = 'hidden';
+        menu.style.pointerEvents = 'none';
+      }
+
+    } else {
+      /* ── ŠIROKÁ OBRAZOVKA (desktop): vrať menu do normálního vodorovného flow ── */
+      hamburger.style.display = 'none';
+
+      menu.style.position = 'static';
+      menu.style.inset = 'auto';
+      menu.style.flexDirection = 'row';
+      menu.style.background = 'transparent';
+      menu.style.opacity = '1';
+      menu.style.visibility = 'visible';
+      menu.style.pointerEvents = 'auto';
+      menu.style.zIndex = 'auto';
+
+      /*
+        Na desktopu musí být menu vždy "zavřené" stavově,
+        aby se po zúžení okna chovalo znovu jako skryté.
+
+        DŮLEŽITÉ: classList.remove() měníme jen když třída
+        OPRAVDU existuje (.contains() check). I volání remove()
+        na neexistující třídě totiž změní atribut class a vyvolá
+        tak další MutationObserver callback níže – bez tohoto
+        guardu by vznikla nekonečná smyčka mikrotasků
+        (aplikuj → remove → mutace → aplikuj → remove → …).
+      */
+      if (hamburger.classList.contains('otevreno')) hamburger.classList.remove('otevreno');
+      if (menu.classList.contains('otevreno'))      menu.classList.remove('otevreno');
+      document.body.style.overflow = '';
+    }
+  }
+
+  /* Spustit hned při načtení */
+  aplikuj();
+
+  /* A znovu při každé změně velikosti okna (např. otočení telefonu,
+     zmenšení okna prohlížeče na desktopu) */
+  window.addEventListener('resize', aplikuj);
+
+  /*
+    Menu se otevírá/zavírá na třech různých místech v kódu
+    (klik na hamburger, klik na odkaz, klik mimo menu – viz
+    funkce inicializujMenu výše). Místo aby se to tu duplikovalo,
+    sledujeme přímo ZMĚNU TŘÍDY "otevreno" pomocí MutationObserver –
+    ten zavolá aplikuj() automaticky, ať se třída změní odkudkoliv.
+
+    Použito společně s guardem výše (.contains() check), aby
+    nevznikla nekonečná smyčka: aplikuj() na desktopu už nemění
+    třídu, pokud tam "otevreno" není, takže observer se nespustí
+    podruhé zbytečně.
+  */
+  var sledovacTridy = new MutationObserver(aplikuj);
+  sledovacTridy.observe(menu, { attributes: true, attributeFilter: ['class'] });
+}
 
 
 /* ============================================================
@@ -128,9 +235,12 @@ function inicializujScrollAnimace() {
 /* ============================================================
    LIGHTBOX – fotky i videa, navigace šipkami / klávesy / swipe
 
-   Jak funguje podpora videa:
-   - Každá položka galerie je buď fotka (.galerie-polozka s <img>)
-     nebo video (.galerie-polozka.galerie-video s atributem data-src).
+   Jak funguje podpora videa i skupin:
+   - Galerie je rozdělená na dvě skupiny: "foto" a "video"
+     (atribut data-skupina na každé .galerie-polozka).
+   - Lightbox je společný pro obě skupiny, ale šipky/klávesy/swipe
+     procházejí VŽDY jen v rámci stejné skupiny, kde uživatel
+     lightbox otevřel – fotky se tedy neproplétají s videi.
    - Při otevření lightboxu JS zkontroluje typ položky a zobrazí
      buď <img> nebo <video> přehrávač.
    - Při přepnutí / zavření se video automaticky zastaví.
@@ -148,31 +258,39 @@ function inicializujGalerii() {
   if (!lightbox || !lbObrazek) return;
 
   /*
-    Načteme VŠECHNY položky galerie do jednoho pole –
-    jak fotky tak videa, v pořadí jak jsou v HTML.
-    Každá položka je objekt s typem a zdrojem.
+    Načteme VŠECHNY položky galerie (fotky i videa) do jednoho pole,
+    v pořadí jak jsou v HTML. Každá položka si nese i svou skupinu
+    (data-skupina="foto" / "video"), podle které se později filtruje.
   */
-  var polozky = Array.from(document.querySelectorAll('.galerie-polozka')).map(function (el) {
+  var vsechnyPolozky = Array.from(document.querySelectorAll('.galerie-polozka')).map(function (el) {
+    var skupina = el.getAttribute('data-skupina') || 'foto';
+
     if (el.classList.contains('galerie-video')) {
-      /* Video položka – zdroj je v atributu data-src */
       return {
-        typ:   'video',
-        src:   el.getAttribute('data-src') || '',
-        popis: el.getAttribute('data-popis') || 'Video',
-        el:    el
+        typ:     'video',
+        skupina: skupina,
+        src:     el.getAttribute('data-src') || '',
+        popis:   el.getAttribute('data-popis') || 'Video',
+        el:      el
       };
     } else {
-      /* Foto položka – zdroj je v src obrázku */
       var img = el.querySelector('img');
       return {
-        typ:   'foto',
-        src:   img ? img.src  : '',
-        popis: img ? img.alt  : '',
-        el:    el
+        typ:     'foto',
+        skupina: skupina,
+        src:     img ? img.src : '',
+        popis:   img ? img.alt : '',
+        el:      el
       };
     }
   });
 
+  /*
+    Aktuálně zobrazená SKUPINA položek (jen fotky, nebo jen videa) –
+    nastaví se při kliknutí podle toho, na co uživatel klikl.
+    "index" je pozice uvnitř TÉTO skupiny, ne v celém poli.
+  */
+  var aktualniSkupina = vsechnyPolozky;
   var index = 0;
 
   /* Plynulý přechod pro obrázky */
@@ -188,13 +306,13 @@ function inicializujGalerii() {
     }
   }
 
-  /* Zobrazí položku na pozici i */
+  /* Zobrazí položku na pozici i UVNITŘ aktuální skupiny */
   function zobraz(i) {
-    if (i < 0) i = polozky.length - 1;
-    if (i >= polozky.length) i = 0;
+    if (i < 0) i = aktualniSkupina.length - 1;
+    if (i >= aktualniSkupina.length) i = 0;
     index = i;
 
-    var p = polozky[i];
+    var p = aktualniSkupina[i];
 
     /* Zastav případné přehrávané video */
     zastavVideo();
@@ -225,7 +343,7 @@ function inicializujGalerii() {
       }, 160);
     }
 
-    if (lbPocitadlo) lbPocitadlo.textContent = (i + 1) + ' / ' + polozky.length;
+    if (lbPocitadlo) lbPocitadlo.textContent = (i + 1) + ' / ' + aktualniSkupina.length;
   }
 
   /* Zavře lightbox a zastaví vše */
@@ -236,9 +354,17 @@ function inicializujGalerii() {
   }
 
   /* Kliknutí na libovolnou položku galerie */
-  polozky.forEach(function (p, i) {
+  vsechnyPolozky.forEach(function (p) {
     p.el.addEventListener('click', function () {
-      zobraz(i);
+      /*
+        Při kliknutí vybereme JEN položky stejné skupiny jako ta,
+        na kterou se kliklo – tím se šipky/swipe omezí na fotky,
+        nebo na videa, podle toho kde uživatel galerii otevřel.
+      */
+      aktualniSkupina = vsechnyPolozky.filter(function (x) { return x.skupina === p.skupina; });
+      var startIndex = aktualniSkupina.indexOf(p);
+
+      zobraz(startIndex);
       lightbox.classList.add('aktivni');
       document.body.style.overflow = 'hidden';
     });
@@ -259,8 +385,8 @@ function inicializujGalerii() {
     if (!lightbox.classList.contains('aktivni')) return;
     if (e.key === 'Escape')     zavri();
     /* Šipky fungují jen pro fotky – u videa nechceme přerušit přehrávání */
-    if (e.key === 'ArrowLeft'  && polozky[index].typ !== 'video') zobraz(index - 1);
-    if (e.key === 'ArrowRight' && polozky[index].typ !== 'video') zobraz(index + 1);
+    if (e.key === 'ArrowLeft'  && aktualniSkupina[index].typ !== 'video') zobraz(index - 1);
+    if (e.key === 'ArrowRight' && aktualniSkupina[index].typ !== 'video') zobraz(index + 1);
   });
 
   /* Swipe na dotykových zařízeních (jen pro fotky) */
@@ -269,7 +395,7 @@ function inicializujGalerii() {
     swipeX = e.touches[0].clientX;
   }, { passive: true });
   lightbox.addEventListener('touchend', function (e) {
-    if (polozky[index].typ === 'video') return; /* swipe blokujeme u videa */
+    if (aktualniSkupina[index].typ === 'video') return; /* swipe blokujeme u videa */
     var d = swipeX - e.changedTouches[0].clientX;
     if (Math.abs(d) > 50) zobraz(d > 0 ? index + 1 : index - 1);
   });
